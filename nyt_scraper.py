@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import requests, bs4, os, errno, time, datetime, re
+import requests, os, errno, time, datetime, re, pickle
+import bs4
 
 def download_page(url):
     try:
@@ -91,9 +92,13 @@ with open('urls_to_articles.txt', 'w') as output:
 articles = []
 for url in urls_to_articles:
     article_page = download_page(url)
-    article_page = bs4.BeautifulSoup(article_page.text, "lxml")
-    body = article_page.find_all(class_="meteredContent")
-    if body:
-        articles.append(body[0].text)
+    if article_page:
+        article_page = bs4.BeautifulSoup(article_page.text, "lxml")
+        body = article_page.find_all(class_="meteredContent")
+        if body:
+            articles.append(body[0].text)
 
 
+
+with open('articles_list.pkl', 'wb') as f:
+    pickle.dump(articles, f)

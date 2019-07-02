@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 https://www.nytimes.com/2019/01/18/opinion/buzzfeed-cohen-trump-tower.html
 https://www.nytimes.com/2019/01/08/opinion/green-new-deal.html
 https://www.nytimes.com/2019/01/11/opinion/trump-2020-media.html
@@ -28317,3 +28318,5 @@ https://www.nytimes.com/2019/07/01/briefing/hong-kong-japan-iran.html
 https://www.nytimes.com/2019/07/01/arts/television/big-little-lies-episode-4-recap.html
 https://www.nytimes.com/2019/07/01/world/americas/nayib-bukele-migrant-deaths.html
 https://www.nytimes.com/2019/07/01/fashion/schiaparelli-daniel-roseberry-couture-paris.html
+=======
+>>>>>>> 7cf5e59bb8eac48e54aaba768f4aee6d0c7e8cce

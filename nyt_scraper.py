@@ -102,9 +102,15 @@ for url in urls_to_articles:
         body = article_page.find_all(class_="meteredContent")
         if body:
             articles.append(body[0].text)
+<<<<<<< HEAD
 
 
 
 
+=======
+
+
+
+>>>>>>> 7cf5e59bb8eac48e54aaba768f4aee6d0c7e8cce
 with open('articles_list.pkl', 'wb') as f:
     pickle.dump(articles, f)

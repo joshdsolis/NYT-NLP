@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import requests, bs4, os, errno, time, datetime, re
+import requests, os, errno, time, datetime, re, pickle
+import bs4
 
 def download_page(url):
     try:
@@ -36,64 +37,74 @@ if not os.path.exists('articles/'):
             raise
 
 # STEP 1. BUILD THE LIST OF URLS TO ARTICLES
-if True:
-#not os.path.exists('urls_to_articles.txt'):
-    links_to_parts = []
+if not open('urls_to_articles.txt', 'r'):
+    if True:
+    #not os.path.exists('urls_to_articles.txt'):
+        links_to_parts = []
 
-    for year in range(2019, datetime.datetime.now().year + 1):
+        for year in range(2019, datetime.datetime.now().year + 1):
 
-        catalog_page_by_years = 'http://spiderbites.nytimes.com/%s/' % (year)
+            catalog_page_by_years = 'http://spiderbites.nytimes.com/%s/' % (year)
 
-        attempts = 0
+            attempts = 0
 
-        print('Year: ', year)
+            print('Year: ', year)
 
-        with open('logfile.log', 'w') as f:
-            f.write('STEP 1. Year: ' + str(year) + '\n')
+            with open('logfile.log', 'w') as f:
+                f.write('STEP 1. Year: ' + str(year) + '\n')
 
-        catalog_page = download_page(catalog_page_by_years)
-
-        while not (catalog_page or attempts > max_attempts):
             catalog_page = download_page(catalog_page_by_years)
-            attempts += 1
-            
-        if catalog_page:
-            catalog_page = bs4.BeautifulSoup(catalog_page.text, "lxml")
-            if year > 1995:
-                links_to_parts.append(['http://spiderbites.nytimes.com%s' % (el.get('href')) for el in catalog_page.select('body > div > div > div > div > div > div > ul > li > a')])
-            else:
-                links_to_parts.append(['http://spiderbites.nytimes.com/free_%s/%s' % (year, el.get('href')) for el in catalog_page.select('body > div > div > div > div > div > div > ul > li > a')])
 
-    links_to_parts = [item for sublist in links_to_parts for item in sublist]
-    
-    for link_to_parts in links_to_parts:
+            while not (catalog_page or attempts > max_attempts):
+                catalog_page = download_page(catalog_page_by_years)
+                attempts += 1
+                
+            if catalog_page:
+                catalog_page = bs4.BeautifulSoup(catalog_page.text, "lxml")
+                if year > 1995:
+                    links_to_parts.append(['http://spiderbites.nytimes.com%s' % (el.get('href')) for el in catalog_page.select('body > div > div > div > div > div > div > ul > li > a')])
+                else:
+                    links_to_parts.append(['http://spiderbites.nytimes.com/free_%s/%s' % (year, el.get('href')) for el in catalog_page.select('body > div > div > div > div > div > div > ul > li > a')])
 
-        attempts = 0
+        links_to_parts = [item for sublist in links_to_parts for item in sublist]
+        
+        for link_to_parts in links_to_parts:
 
-        parts_page = download_page(link_to_parts)
+            attempts = 0
 
-        while not (parts_page or attempts > max_attempts):
             parts_page = download_page(link_to_parts)
-            attempts += 1
 
-        if parts_page:
-            parts_page = bs4.BeautifulSoup(parts_page.text, "lxml")
-            urls_to_articles.append([el.get('href') for el in parts_page.select('body > div > div > div > div > ul > li > a')])
+            while not (parts_page or attempts > max_attempts):
+                parts_page = download_page(link_to_parts)
+                attempts += 1
 
-urls_to_articles = [item for sublist in urls_to_articles for item in sublist]
+            if parts_page:
+                parts_page = bs4.BeautifulSoup(parts_page.text, "lxml")
+                urls_to_articles.append([el.get('href') for el in parts_page.select('body > div > div > div > div > ul > li > a')])
 
-# Backing up the list of URLs
-with open('urls_to_articles.txt', 'w') as output:
-    for u in urls_to_articles:
-        output.write('%s\n' % (u.strip()))
+    urls_to_articles = [item for sublist in urls_to_articles for item in sublist]
+
+    # Backing up the list of URLs
+    with open('urls_to_articles.txt', 'w') as output:
+        for u in urls_to_articles:
+            output.write('%s\n' % (u.strip()))
+
+else:
+    
+    urls_to_articles = [line.rstrip('\n') for line in open('urls_to_articles.txt')]
 
 # Part where I find the content in the articles and put it in a list
 articles = []
 for url in urls_to_articles:
     article_page = download_page(url)
-    article_page = bs4.BeautifulSoup(article_page.text, "lxml")
-    body = article_page.find_all(class_="meteredContent")
-    if body:
-        articles.append(body[0].text)
+    if article_page:
+        article_page = bs4.BeautifulSoup(article_page.text, "lxml")
+        body = article_page.find_all(class_="meteredContent")
+        if body:
+            articles.append(body[0].text)
 
 
+
+
+with open('articles_list.pkl', 'wb') as f:
+    pickle.dump(articles, f)

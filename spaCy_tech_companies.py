@@ -44,9 +44,9 @@ def main(text=texts, *companies):
         doc = nlp(text)
 
         combos = list(itertools.combinations([e.text for e in doc.ents if e.label_ == 'ORG'], 2))
-        for combo in combos:
-            if combo[0] == combo[1]:
-                combos.remove(combo)
+        combos = [combo for combo in combos if combo[0] != combo[1]]
+
+        for combo in combos:    
             if combo not in counts:
                 counts[combo] = 1
             else:

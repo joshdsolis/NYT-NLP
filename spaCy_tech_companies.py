@@ -45,10 +45,13 @@ def main(text=texts, *companies):
 
         combos = list(itertools.combinations([e.text for e in doc.ents if e.label_ == 'ORG'], 2))
         for combo in combos:
+            if combo[0] == combo[1]:
+                combos.remove(combo)
             if combo not in counts:
                 counts[combo] = 1
             else:
                 counts[combo] += 1
+        
     print(sorted(counts.items(), key = 
              lambda kv:(kv[1], kv[0])))
     #print("Pipeline", nlp.pipe_names)  # pipeline contains component name

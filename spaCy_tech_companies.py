@@ -18,14 +18,14 @@ from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher
 from spacy.tokens import Doc, Span, Token
 import pickle
-
+import itertools
 
 pickle_in = open("articles_list.pkl","rb")
-text = pickle.load(pickle_in)[0]
+texts = pickle.load(pickle_in)
 
 companies=("Names of technology companies", "positional", None, str)
 
-def main(text=text, *companies):
+def main(text=texts, *companies):
     # For simplicity, we start off with only the blank English Language class
     # and no model or pre-defined pipeline loaded.
     nlp = spacy.load("en")
@@ -35,14 +35,30 @@ def main(text=text, *companies):
     component = TechCompanyRecognizer(nlp, companies)  # initialise component
     nlp.add_pipe(component, last=True)  # add last to the pipeline
 '''
-    doc = nlp(text)
-    print("Pipeline", nlp.pipe_names)  # pipeline contains component name
-    print("Tokens", [t.text for t in doc])  # company names from the list are merged
+    counts = {}
+    '''
+    for text in texts
+        doc = nlp(text)
+    '''
+    for text in texts:
+        doc = nlp(text)
+
+        combos = list(itertools.combinations([e.text for e in doc.ents if e.label_ == 'ORG'], 2))
+        for combo in combos:
+            if combo not in counts:
+                counts[combo] = 1
+            else:
+                counts[combo] += 1
+    print(sorted(counts.items(), key = 
+             lambda kv:(kv[1], kv[0])))
+    #print("Pipeline", nlp.pipe_names)  # pipeline contains component name
+    #print("Tokens", [t.text for t in doc])  # company names from the list are merged
     #print("Doc has_tech_org", doc._.has_tech_org)  # Doc contains tech orgs
     #print("Token 0 is_tech_org", doc[0]._.is_tech_org)  # "Alphabet Inc." is a tech org
     #print("Token 1 is_tech_org", doc[1]._.is_tech_org)  # "is" is not
-    print("Entities", [(e.text, e.label_) for e in doc.ents if e.label_ == 'ORG'])  # all orgs are entities
+    #print("Entities", [(e.text, e.label_) for e in doc.ents if e.label_ == 'ORG'])  # all orgs are entities
     
+
 
 
 class TechCompanyRecognizer(object):
